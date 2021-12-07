@@ -74,8 +74,13 @@ function init(){
     addWall(1, 30, 50, 29.5, 14.5, -0);
 
 
-    const light = new THREE.HemisphereLight(0xADD8E6, 0xFFFFFF, 1);
-    scene.add(light);
+    const hemisphereLight = new THREE.HemisphereLight(0xFFFFFF, 0x808080, 1.5);
+    hemisphereLight.position.set(-30, 32, -15);
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    directionalLight.position.set(-30, 10, -15);
+    directionalLight.castShadow = true;
+    scene.add( directionalLight );
+    scene.add(hemisphereLight);
 
     function addWall(w, h, d, x, y, z){
         const geometry = new THREE.BoxGeometry( w, h, d );
