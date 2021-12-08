@@ -1,5 +1,6 @@
-import * as THREE from './three/three.module.js'
-import {OrbitControls} from './three/OrbitControls.js'
+// import * as THREE from "./three/three.module.js"
+// import {OrbitControls} from "./three/OrbitControls.js"
+// import {MeshLine} from "./three/THREE.MeshLine.js"
 function init(){
     // Canvas
     const canvas = document.querySelector('canvas.webgl')
@@ -50,7 +51,7 @@ function init(){
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
-    const controls = new OrbitControls(camera, canvas);
+    const controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = true;
 
     const tick = () =>
@@ -76,13 +77,12 @@ function init(){
     addWall(1, 30, 50, 29.5, 14.5, -0);
 
     // Draw the balls
-    // difficultyEasy();
+    difficultyEasy();
     // difficultyMedium();
-    difficultyHard();
+    // difficultyHard();
 
     addLighting();
 
-    //drawPlane();
     function addWall(w, h, d, x, y, z){
         const geometry = new THREE.BoxGeometry( w, h, d );
         const material = new THREE.MeshPhongMaterial( {color: 0x808080} );
@@ -114,27 +114,33 @@ function init(){
         directionalLight.shadow.camera.near = 0.5;
         directionalLight.shadow.camera.far = 500;
     }
-    function drawPlane(){
-        //Create a plane that receives shadows (but does not cast them)
-        const planeGeometry = new THREE.PlaneGeometry( 60, 30, 32, 32 );
-        const planeMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff } )
-        const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-        plane.position.set(0, 14.5, -24);
-        plane.receiveShadow = true;
-        scene.add( plane );
+
+    function drawLine(points){
+        let line = new MeshLine();
+        line.setPoints(points.flat());
+        var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: 1});
+        material.transparent = true;
+        let mesh = new THREE.Mesh(line, material);
+        scene.add(mesh);
     }
 
     function difficultyEasy(){
+        let points = [];
         let r = 2;
         let x = 10, y=27, z=-20;
         for(let j=0; j<3; j++){
             for(let i=0; i<3; i++){
+                for(var k=0; k<10; k+=0.1){
+                    points.push([x, y, z]);
+                }
                 drawBall(r, x, y, z);
                 x-=10;
             }
             y-=8;
             x=10;
         }
+        console.log(points);
+        drawLine(points);
     }
     function difficultyMedium(){
         let r = 1.5;
@@ -160,6 +166,23 @@ function init(){
             x=13;
         }
     }
+    function shuffle(array) {
+        let currentIndex = array.length,  randomIndex;
+      
+        // While there remain elements to shuffle...
+        while (currentIndex != 0) {
+      
+          // Pick a remaining element...
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+      
+          // And swap it with the current element.
+          [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+        }
+      
+        return array;
+      }
 }
 
 init();
