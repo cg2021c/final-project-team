@@ -54,15 +54,21 @@ function init(){
     const controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = true;
     
-    let mesh;
-    let newPoints = [];
+    let mesh = [];
+    let newPoints;
 
+    var width;
+    var speed;
+    var index = 0;
+    var lineIndex = 0;
+    var counter=0;
     difficultyEasy();
-    addLine();
+    // difficultyMedium();
+    //  difficultyHard();
     const tick = () =>
     {
         animateLine();
-        console.log(mesh.material.uniforms.dashOffset.value);
+
         renderer.render(scene, camera)
         controls.update();
         // Call tick again on the next frame
@@ -83,11 +89,6 @@ function init(){
     // right wall
     addWall(1, 30, 50, 29.5, 14.5, -0);
 
-    // Draw the balls
-    
-    // difficultyMedium();
-    // difficultyHard();
-
     addLighting();
     function addWall(w, h, d, x, y, z){
         const geometry = new THREE.BoxGeometry( w, h, d );
@@ -99,7 +100,7 @@ function init(){
     }
     function drawBall(r, x, y, z){
         const geometry = new THREE.SphereGeometry( r, 32, 10 );
-        const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+        const material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
         const sphere = new THREE.Mesh( geometry, material );
         sphere.position.set(x, y, z);
         sphere.castShadow = true;
@@ -122,34 +123,46 @@ function init(){
     }
 
     function drawLine(pointStart, pointEnd){
+        newPoints = [];
         let changeX = 0;
         let changeY = 0;
         //console.log(points)
-        changeX = (pointEnd[0]-pointStart[0])/20; 
-        changeY = (pointEnd[1] - pointStart[1])/20;
+        changeX = (pointEnd[0]-pointStart[0])/100; 
+        changeY = (pointEnd[1] - pointStart[1])/100;
 
         let newX = pointStart[0];
         let newY = pointStart[1];
-        for(let j=0; j<20; j++){
+        for(let j=0; j<100; j++){
             newPoints.push([newX, newY, pointStart[2]]);
             newX+=changeX;
             newY+=changeY;
         }
-        
+        addLine();
     }
     function addLine(){
         let line = new MeshLine();
         line.setPoints(newPoints.flat());
-        var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: 1, dashArray:10, dashRatio:0.1, dashOffset: 0});
+        var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: width, dashArray:10, dashRatio:0.7, dashOffset: 0});
         material.transparent = true;
-        mesh = new THREE.Mesh(line, material);
-        scene.add(mesh);
+        mesh[index] = new THREE.Mesh(line, material);
+        scene.add(mesh[index++]);
     }
     function animateLine(){
-        let offset = mesh.material.uniforms.dashOffset.value;
-        if(offset > -1)mesh.material.uniforms.dashOffset.value -=0.005;
+        // console.log(lineIndex, mesh.length);
+        if(lineIndex > mesh.length-1)return;
+        console.log(mesh[lineIndex].material.uniforms.dashOffset.value);
+        let offset = mesh[lineIndex].material.uniforms.dashOffset.value;
+        mesh[lineIndex].material.uniforms.dashOffset.value -= speed;
+        if(offset < -1){
+            if(counter>2)counter=0;
+            var lineColor = [new THREE.Color( 0xff0000 ),new THREE.Color( 0x00FF00 ) ,new THREE.Color( 0x0000FF ) ];
+            lineIndex++;
+            if(lineIndex < mesh.length-1)mesh[lineIndex].material.uniforms.color.value = lineColor[counter++];
+        }
     }
     function difficultyEasy(){
+        speed = 0.03;
+        width = 1;
         let points = [];
         let r = 2;
         let x = 10, y=27, z=-20;
@@ -158,16 +171,19 @@ function init(){
                 points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=10;
+                z+=0.1;
             }
             y-=8;
             x=10;
         }
-        shuffle(points);
+       shuffle(points);
         for(let i=0; i<8; i++){
             drawLine(points[i], points[i+1]);
         }
     }
     function difficultyMedium(){
+        speed = 0.015;
+        width = 0.5;
         let points = [];
         let r = 1.5;
         let x = 12.5, y=27, z=-20;
@@ -176,6 +192,7 @@ function init(){
                 points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=8;
+                z+=0.1;
             }
             y-=6;
             x=12.5;
@@ -186,6 +203,8 @@ function init(){
         }
     }
     function difficultyHard(){
+        speed = 0.01;
+        width = 0.3;
         let points = [];
         let r = 1;
         let x = 13, y=27, z=-20;
@@ -194,8 +213,9 @@ function init(){
                 points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=6;
+                z+=0.05;
             }
-            y-=4;
+            y-=4.5;
             x=13;
         }
         shuffle(points);
