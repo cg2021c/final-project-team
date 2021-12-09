@@ -115,55 +115,82 @@ function init(){
         directionalLight.shadow.camera.far = 500;
     }
 
-    function drawLine(points){
+    function drawLine(pointStart, pointEnd){
+        let newPoints = [];
+        let changeX = 0;
+        let changeY = 0;
+        //console.log(points)
+        changeX = (pointEnd[0]-pointStart[0])/100; 
+        changeY = (pointEnd[1] - pointStart[1])/100;
+
+        let newX = pointStart[0];
+        let newY = pointStart[1];
+        for(let j=0; j<100; j++){
+            newPoints.push([newX, newY, pointStart[2]]);
+            newX+=changeX;
+            newY+=changeY;
+        }
+        console.log(pointStart,pointEnd, changeX, changeY);
+       // console.log(newPoints);
         let line = new MeshLine();
-        line.setPoints(points.flat());
+        line.setPoints(newPoints.flat());
         var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: 1});
         material.transparent = true;
         let mesh = new THREE.Mesh(line, material);
         scene.add(mesh);
     }
-
     function difficultyEasy(){
         let points = [];
         let r = 2;
         let x = 10, y=27, z=-20;
         for(let j=0; j<3; j++){
             for(let i=0; i<3; i++){
-                for(var k=0; k<10; k+=0.1){
-                    points.push([x, y, z]);
-                }
+                points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=10;
             }
             y-=8;
             x=10;
         }
-        console.log(points);
-        drawLine(points);
+        shuffle(points);
+        for(let i=0; i<8; i++){
+            drawLine(points[i], points[i+1]);
+        }
     }
     function difficultyMedium(){
+        let points = [];
         let r = 1.5;
         let x = 12.5, y=27, z=-20;
         for(let j=0; j<4; j++){
             for(let i=0; i<4; i++){
+                points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=8;
             }
-            y-=5;
+            y-=6;
             x=12.5;
+        }
+        shuffle(points);
+        for(let i=0; i<15; i++){
+            drawLine(points[i], points[i+1]);
         }
     }
     function difficultyHard(){
+        let points = [];
         let r = 1;
         let x = 13, y=27, z=-20;
         for(let j=0; j<5; j++){
             for(let i=0; i<5; i++){
+                points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=6;
             }
             y-=4;
             x=13;
+        }
+        shuffle(points);
+        for(let i=0; i<24; i++){
+            drawLine(points[i], points[i+1]);
         }
     }
     function shuffle(array) {
