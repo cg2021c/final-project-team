@@ -53,9 +53,16 @@ function init(){
 
     const controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = true;
+    
+    let mesh;
+    let newPoints = [];
 
+    difficultyEasy();
+    addLine();
     const tick = () =>
     {
+        animateLine();
+        console.log(mesh.material.uniforms.dashOffset.value);
         renderer.render(scene, camera)
         controls.update();
         // Call tick again on the next frame
@@ -77,12 +84,11 @@ function init(){
     addWall(1, 30, 50, 29.5, 14.5, -0);
 
     // Draw the balls
-    difficultyEasy();
+    
     // difficultyMedium();
     // difficultyHard();
 
     addLighting();
-
     function addWall(w, h, d, x, y, z){
         const geometry = new THREE.BoxGeometry( w, h, d );
         const material = new THREE.MeshPhongMaterial( {color: 0x808080} );
@@ -116,28 +122,32 @@ function init(){
     }
 
     function drawLine(pointStart, pointEnd){
-        let newPoints = [];
         let changeX = 0;
         let changeY = 0;
         //console.log(points)
-        changeX = (pointEnd[0]-pointStart[0])/100; 
-        changeY = (pointEnd[1] - pointStart[1])/100;
+        changeX = (pointEnd[0]-pointStart[0])/20; 
+        changeY = (pointEnd[1] - pointStart[1])/20;
 
         let newX = pointStart[0];
         let newY = pointStart[1];
-        for(let j=0; j<100; j++){
+        for(let j=0; j<20; j++){
             newPoints.push([newX, newY, pointStart[2]]);
             newX+=changeX;
             newY+=changeY;
         }
-        console.log(pointStart,pointEnd, changeX, changeY);
-       // console.log(newPoints);
+        
+    }
+    function addLine(){
         let line = new MeshLine();
         line.setPoints(newPoints.flat());
-        var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: 1});
+        var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: 1, dashArray:10, dashRatio:0.1, dashOffset: 0});
         material.transparent = true;
-        let mesh = new THREE.Mesh(line, material);
+        mesh = new THREE.Mesh(line, material);
         scene.add(mesh);
+    }
+    function animateLine(){
+        let offset = mesh.material.uniforms.dashOffset.value;
+        if(offset > -1)mesh.material.uniforms.dashOffset.value -=0.005;
     }
     function difficultyEasy(){
         let points = [];
