@@ -1,6 +1,4 @@
-// import * as THREE from "./three/three.module.js"
-// import {OrbitControls} from "./three/OrbitControls.js"
-// import {MeshLine} from "./three/THREE.MeshLine.js"
+
 function init(){
     // Canvas
     const canvas = document.querySelector('canvas.webgl')
@@ -15,6 +13,30 @@ function init(){
         height: window.innerHeight
     }
 
+    /**
+     * Camera
+     */
+    // Base camera
+    const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+    camera.position.x = 5
+    camera.position.y = 15
+    camera.position.z = 30
+    scene.add(camera)
+
+    /**
+     * Renderer
+     */
+    const renderer = new THREE.WebGLRenderer({
+        canvas: canvas
+    })
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
+    // const controls = new THREE.OrbitControls(camera, canvas);
+    // controls.enableDamping = true;
+    
     window.addEventListener('resize', () =>
     {
         // Update sizes
@@ -30,30 +52,18 @@ function init(){
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     })
 
-    /**
-     * Camera
-     */
-    // Base camera
-    const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-    camera.position.x = 0
-    camera.position.y = 5
-    camera.position.z = 30
-    scene.add(camera)
+    // Add mouse controls
+    const controls = new THREE.PointerLockControls( camera, renderer.domElement );
+    document.body.addEventListener( 'click', function () {
 
-    /**
-     * Renderer
-     */
-    const renderer = new THREE.WebGLRenderer({
-        canvas: canvas
-    })
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+        controls.lock();
 
-    const controls = new THREE.OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-    
+    } );
+    scene.add( controls.getObject() );
+
+    // Add crosshair
+    createCrosshair(camera);
+
     let mesh = [];
     let newPoints;
 
@@ -62,19 +72,17 @@ function init(){
     var index = 0;
     var lineIndex = 0;
     var counter=0;
-    difficultyEasy();
-    // difficultyMedium();
+    // difficultyEasy();
+    difficultyMedium();
     //  difficultyHard();
     const tick = () =>
     {
         animateLine();
-
         renderer.render(scene, camera)
-        controls.update();
+        // controls.update();
         // Call tick again on the next frame
         window.requestAnimationFrame(tick)
     }
-
     tick()
     // ground
     addWall(60, 1, 50, 0, 0, 0);
@@ -148,17 +156,26 @@ function init(){
         scene.add(mesh[index++]);
     }
     function animateLine(){
-        // console.log(lineIndex, mesh.length);
         if(lineIndex > mesh.length-1)return;
-        console.log(mesh[lineIndex].material.uniforms.dashOffset.value);
+        // console.log(mesh[lineIndex].material.uniforms.dashOffset.value);
         let offset = mesh[lineIndex].material.uniforms.dashOffset.value;
         mesh[lineIndex].material.uniforms.dashOffset.value -= speed;
         if(offset < -1){
             if(counter>2)counter=0;
             var lineColor = [new THREE.Color( 0xff0000 ),new THREE.Color( 0x00FF00 ) ,new THREE.Color( 0x0000FF ) ];
             lineIndex++;
-            if(lineIndex < mesh.length-1)mesh[lineIndex].material.uniforms.color.value = lineColor[counter++];
+            if(lineIndex < mesh.length)mesh[lineIndex].material.uniforms.color.value = lineColor[counter++];
         }
+    }
+    function createCrosshair(camera) {
+        const map = new THREE.TextureLoader().load('./assets/crosshair.png');
+        const material = new THREE.SpriteMaterial({ map: map, transparent: true, depthTest: false });
+    
+        let sprite = new THREE.Sprite(material);
+        sprite.scale.set(0.2, 0.2, 1);
+        sprite.position.z = -2.0;
+        camera.add(sprite);
+        return sprite;
     }
     function difficultyEasy(){
         speed = 0.03;
@@ -171,7 +188,7 @@ function init(){
                 points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=10;
-                z+=0.1;
+                z+=0.05;
             }
             y-=8;
             x=10;
@@ -213,7 +230,7 @@ function init(){
                 points.push([x, y, z]);
                 drawBall(r, x, y, z);
                 x-=6;
-                z+=0.05;
+                z+=0.03;
             }
             y-=4.5;
             x=13;
