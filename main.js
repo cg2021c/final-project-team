@@ -18,9 +18,9 @@ function init(){
      */
     // Base camera
     const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-    camera.position.x = 5
-    camera.position.y = 15
-    camera.position.z = 30
+    camera.position.x = 0
+    camera.position.y = 19
+    camera.position.z = 22
     scene.add(camera)
 
     /**
@@ -64,8 +64,15 @@ function init(){
     // Add crosshair
     createCrosshair(camera);
 
+    // Add Raycaster
+    let hovered;
+    let selected;
+    const raycaster = new THREE.Raycaster();
+    
+
     let mesh = [];
     let newPoints;
+    let balls = [];
 
     var width;
     var speed;
@@ -74,10 +81,12 @@ function init(){
     var counter=0;
     // difficultyEasy();
     difficultyMedium();
-    //  difficultyHard();
+    // difficultyHard();
     const tick = () =>
     {
+        // console.log(mouse);
         animateLine();
+        hover();
         renderer.render(scene, camera)
         // controls.update();
         // Call tick again on the next frame
@@ -108,11 +117,13 @@ function init(){
     }
     function drawBall(r, x, y, z){
         const geometry = new THREE.SphereGeometry( r, 32, 10 );
-        const material = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+        const material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
         const sphere = new THREE.Mesh( geometry, material );
         sphere.position.set(x, y, z);
         sphere.castShadow = true;
         sphere.receiveShadow = false; //default
+        sphere.name = "balls";
+        balls.push(sphere);
         scene.add( sphere );
     }
     
@@ -157,7 +168,6 @@ function init(){
     }
     function animateLine(){
         if(lineIndex > mesh.length-1)return;
-        // console.log(mesh[lineIndex].material.uniforms.dashOffset.value);
         let offset = mesh[lineIndex].material.uniforms.dashOffset.value;
         mesh[lineIndex].material.uniforms.dashOffset.value -= speed;
         if(offset < -1){
@@ -175,7 +185,31 @@ function init(){
         sprite.scale.set(0.2, 0.2, 1);
         sprite.position.z = -2.0;
         camera.add(sprite);
+        sprite.name = "crosshair";
         return sprite;
+    }
+    function hover(){
+        raycaster.setFromCamera(new THREE.Vector2(), camera);
+        raycaster.ray.origin.copy(controls.getObject().position);
+        const intersects = raycaster.intersectObjects(balls, false);
+        if(intersects.length > 0){
+            if(hovered != intersects[0].object){
+                if(hovered){
+                    hovered.material.emissive.setHex(hovered.currentHex);
+                }
+    
+                hovered = intersects[0].object;
+                hovered.currentHex = hovered.material.emissive.getHex();
+                hovered.material.emissive.setHex(0xFFFF00);
+            }
+        }
+        else{
+            if(hovered){
+                hovered.material.emissive.setHex(hovered.currentHex);
+            }
+    
+            hovered = null;
+        }
     }
     function difficultyEasy(){
         speed = 0.03;
