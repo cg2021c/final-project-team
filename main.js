@@ -51,6 +51,7 @@ function init(){
         renderer.setSize(sizes.width, sizes.height)
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     })
+    window.addEventListener('click', selectObject);
 
     // Add mouse controls
     const controls = new THREE.PointerLockControls( camera, renderer.domElement );
@@ -68,28 +69,34 @@ function init(){
     let hovered;
     let selected;
     const raycaster = new THREE.Raycaster();
-    
+    var done = false;
+    var canSelect = false;
 
     let mesh = [];
+    let mesh2 = [];
     let newPoints;
     let balls = [];
+    let visited = [];
+    var start=null, end=null;
 
     var width;
     var speed;
     var index = 0;
     var lineIndex = 0;
     var counter=0;
+    var lineColor = [new THREE.Color( 0xff0000 ),new THREE.Color( 0x00FF00 ) ,new THREE.Color( 0x0000FF ) ];
     // difficultyEasy();
     difficultyMedium();
     // difficultyHard();
     const tick = () =>
     {
-        // console.log(mouse);
+        if(done){
+            disposeLine();
+        }
         animateLine();
         hover();
         renderer.render(scene, camera)
-        // controls.update();
-        // Call tick again on the next frame
+
         window.requestAnimationFrame(tick)
     }
     tick()
@@ -141,40 +148,52 @@ function init(){
         directionalLight.shadow.camera.far = 500;
     }
 
-    function drawLine(pointStart, pointEnd){
+    function drawLine(x1, x2, y1, y2, z1, dr, da, mesh){
         newPoints = [];
         let changeX = 0;
         let changeY = 0;
-        //console.log(points)
-        changeX = (pointEnd[0]-pointStart[0])/100; 
-        changeY = (pointEnd[1] - pointStart[1])/100;
+        changeX = (x2-x1)/100; 
+        changeY = (y2 - y1)/100;
 
-        let newX = pointStart[0];
-        let newY = pointStart[1];
+        let newX = x1;
+        let newY = y1;
         for(let j=0; j<100; j++){
-            newPoints.push([newX, newY, pointStart[2]]);
+            newPoints.push([newX, newY, z1]);
             newX+=changeX;
             newY+=changeY;
         }
-        addLine();
+        addLine(dr, da, mesh);
     }
-    function addLine(){
+    function addLine(dr, da, mesh){
+        if(counter>2)counter = 0;
         let line = new MeshLine();
         line.setPoints(newPoints.flat());
-        var material = new MeshLineMaterial({ color: new THREE.Color(0x0000FF), lineWidth: width, dashArray:10, dashRatio:0.7, dashOffset: 0});
+        var material = new MeshLineMaterial({ color: lineColor[counter++], lineWidth: width, dashArray:da, dashRatio:dr, dashOffset: 0});
         material.transparent = true;
         mesh[index] = new THREE.Mesh(line, material);
         scene.add(mesh[index++]);
     }
+    function disposeLine(){
+        setTimeout(()=>{
+            for(let i=0; i<mesh.length; i++){
+                scene.remove(mesh[i]);
+            }
+            mesh = [];
+            index = 0;
+            canSelect = true;
+        }, 3000)
+    }
     function animateLine(){
-        if(lineIndex > mesh.length-1)return;
+        if(lineIndex > mesh.length-1){
+            done = true;
+            return;
+        }
         let offset = mesh[lineIndex].material.uniforms.dashOffset.value;
         mesh[lineIndex].material.uniforms.dashOffset.value -= speed;
         if(offset < -1){
-            if(counter>2)counter=0;
-            var lineColor = [new THREE.Color( 0xff0000 ),new THREE.Color( 0x00FF00 ) ,new THREE.Color( 0x0000FF ) ];
+            // if(counter>2)counter=0;
             lineIndex++;
-            if(lineIndex < mesh.length)mesh[lineIndex].material.uniforms.color.value = lineColor[counter++];
+            // if(lineIndex < mesh.length)mesh[lineIndex].material.uniforms.color.value = lineColor[counter++];
         }
     }
     function createCrosshair(camera) {
@@ -192,7 +211,9 @@ function init(){
         raycaster.setFromCamera(new THREE.Vector2(), camera);
         raycaster.ray.origin.copy(controls.getObject().position);
         const intersects = raycaster.intersectObjects(balls, false);
+        if(!canSelect) return;
         if(intersects.length > 0){
+            if(checkBall(intersects[0].object))return;
             if(hovered != intersects[0].object){
                 if(hovered){
                     hovered.material.emissive.setHex(hovered.currentHex);
@@ -210,6 +231,28 @@ function init(){
     
             hovered = null;
         }
+    }
+    function selectObject(){
+        const intersects = raycaster.intersectObjects(balls, false);
+        if(intersects.length == 0 || !canSelect){
+            return;
+        }
+        if(checkBall(intersects[0].object)) return;
+        visited.push(intersects[0].object);
+        if(start){
+
+            end = intersects[0].object.position;
+            drawLine(start.x,end.x, start.y, end.y, start.z, 0.5, 0, mesh2);
+            start = end;
+            return;
+        }
+        start = intersects[0].object.position;
+    }
+    function checkBall(object){
+        for(let i=0; i<visited.length; i++){
+            if(object==visited[i])return true;
+        }
+        return false;
     }
     function difficultyEasy(){
         speed = 0.03;
@@ -229,8 +272,9 @@ function init(){
         }
        shuffle(points);
         for(let i=0; i<8; i++){
-            drawLine(points[i], points[i+1]);
+            drawLine(points[i][0],points[i+1][0], points[i][1], points[i+1][1],points[i][2], 0.7, 10, mesh);
         }
+        counter = 0;
     }
     function difficultyMedium(){
         speed = 0.015;
@@ -250,8 +294,9 @@ function init(){
         }
         shuffle(points);
         for(let i=0; i<15; i++){
-            drawLine(points[i], points[i+1]);
+            drawLine(points[i][0],points[i+1][0], points[i][1], points[i+1][1],points[i][2], 0.7, 10, mesh);
         }
+        counter = 0;
     }
     function difficultyHard(){
         speed = 0.01;
@@ -271,8 +316,9 @@ function init(){
         }
         shuffle(points);
         for(let i=0; i<24; i++){
-            drawLine(points[i], points[i+1]);
+            drawLine(points[i][0],points[i+1][0], points[i][1], points[i+1][1],points[i][2], 0.7, 10, mesh);
         }
+        counter = 0;
     }
     function shuffle(array) {
         let currentIndex = array.length,  randomIndex;
