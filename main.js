@@ -61,34 +61,44 @@ function init(){
     const medium = document.getElementById( 'medium' );
     const hard = document.getElementById( 'hard' );
     const scores = document.getElementById( 'scores' );
+    const scoresvalue = document.getElementById( 'scoresvalue' );
+    const finalscore = document.getElementById( 'finalscore' );
+
     // Add mouse controls
     const controls = new THREE.PointerLockControls( camera, renderer.domElement );
     var pause = true;
     var inGame = false;
-   scores.style.display = 'none';
+    var difficulty=0;
+    let points = [];
+    let mesh = [];
+    let mesh2 = [];
+    var score = 0;
+    scores.style.display = 'none';
     blocker.style.display = 'block';
+    scoresvalue.innerText = score;
+    gameover.style.display = 'none';
     easy.addEventListener('click', function (){
         inGame = true;
-        instructions.style.display = 'none';
         blocker.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
+        difficulty = 0;
         difficultyEasy();
     });
     medium.addEventListener('click', function (){
         inGame = true;
-        instructions.style.display = 'none';
         blocker.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
+        difficulty = 1;
         difficultyMedium();
     });
     hard.addEventListener('click', function (){
         inGame = true;
-        instructions.style.display = 'none';
         blocker.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
+        difficulty = 2;
         difficultyHard();
     });
     document.body.addEventListener( 'click', function () {
@@ -111,9 +121,6 @@ function init(){
     var done = false;
     var canSelect = false;
 
-    let points = [];
-    let mesh = [];
-    let mesh2 = [];
     let newPoints;
     let balls = [];
     let visited = [];
@@ -127,16 +134,20 @@ function init(){
     var counter=0;
     var lineColor = [new THREE.Color( 0xff0000 ),new THREE.Color( 0x00FF00 ) ,new THREE.Color( 0x0000FF ) ];
 
-    const tick = () =>
+    var tick = () =>
     {
         if(!pause){
             if(done){
-                disposeLine();
+                done = false;
+                setTimeout(()=>{
+                    disposeLine(mesh);
+                    index = 0;
+                    canSelect = true;
+                }, 3000)
             }
             animateLine();
             hover();
         }
-
         renderer.render(scene, camera)
 
         window.requestAnimationFrame(tick)
@@ -217,18 +228,13 @@ function init(){
         scene.add(mesh[index++]);
     }
 
-    function disposeLine(){
-        setTimeout(()=>{
-            for(let i=0; i<mesh.length; i++){
-                scene.remove(mesh[i]);
-            }
-            index = 0;
-            canSelect = true;
-        }, 3000)
+    function disposeLine(mesh){
+        for(let i=0; i<mesh.length; i++){
+            scene.remove(mesh[i]);
+        }
     }
     function animateLine(){
         if(lineIndex > mesh.length-1){
-            done = true;
             return;
         }
         let offset = mesh[lineIndex].material.uniforms.dashOffset.value;
@@ -236,6 +242,7 @@ function init(){
         if(offset < -1){
             lineIndex++;
         }
+        if(lineIndex > mesh.length-1)done = true;
     }
     function createCrosshair(camera) {
         const map = new THREE.TextureLoader().load('./assets/crosshair.png');
@@ -303,10 +310,45 @@ function init(){
         return true;
     }
     function gameOver(){
-
+        tick = null;
+        finalscore.innerText+=score;
+        blocker.style.display = 'block';
+        gameover.style.display = '';
     }
     function gameContinue(){
-
+        var newScore = 1;
+        var value = 1;
+        if(difficulty==1)value = 5;
+        else if(difficulty==2)value = 10;
+        var temp = setInterval(()=>{
+            if(newScore==100)
+            {
+                disposeLine(mesh2);
+                lineIndex = 0;
+                index = 0;
+                emptyArray(balls);
+                emptyArray(visited);
+                emptyArray(points);
+                emptyArray(mesh);
+                emptyArray(mesh2);
+                start=null;
+                end = null;
+                canSelect = false;
+                if(difficulty==0)difficultyEasy();
+                else if(difficulty==1)difficultyMedium();
+                else difficultyHard();
+                clearInterval(temp);
+            }
+            score+=value;
+            scoresvalue.innerText = score;
+            newScore++;
+        }, 20)
+        
+    }
+    function emptyArray(A){
+        while(A.length>0){
+            A.pop();
+        }
     }
     function checkBall(object){
         for(let i=0; i<visited.length; i++){
