@@ -20,7 +20,7 @@ function init(){
     const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
     camera.position.x = 0
     camera.position.y = 19
-    camera.position.z = 22
+    camera.position.z = 35
     scene.add(camera)
 
     /**
@@ -153,56 +153,142 @@ function init(){
         window.requestAnimationFrame(tick)
     }
     tick()
+
+    let loader = new THREE.CubeTextureLoader();
+    let skybox = loader.load([
+        './assets/barren_ft.jpg',
+        './assets/barren_bk.jpg',
+        './assets/barren_up.jpg',
+        './assets/barren_dn.jpg',
+        './assets/barren_rt.jpg',
+        './assets/barren_lf.jpg',
+    ]);
+    scene.background = skybox;
+    
+
     // ground
-    addWall(60, 1, 50, 0, 0, 0);
+    addWall(60, 1, 100, 0, 0, 0, "ground");
     // far box
-    addWall(60, 7, 10, 0, 4, -20);
-    // far wall
-    addWall(60, 30, 1, 0, 14.5, -25);
+    addWall(60, 7, 10, 0, 4, -20, "far_box");
+    // front wall
+    addWall(65, 30, 1, 0, 14.5, -25, "far_wall");
+    // back wall
+    addWall(60, 30, 1, 0, 14.5, 50, "far_wall");
     // roof
-    addWall(60, 1, 25, 0, 30, -13);
-    // left wall
-    addWall(1, 30, 50, -29.5, 14.5, -0);
-    // right wall
-    addWall(1, 30, 50, 29.5, 14.5, -0);
+    addWall(62, 1, 50, 0, 29, -20, "roof");
+    // left wall1
+    addWall(1, 30, 35, -29.5, 14.5, -5, "left_wall");
+    // left wall2
+    addWall(1, 30, 15, -29.5, 14.5, 45, "left_wall");
+    // left walltop
+    addWall(1, 10, 25, -29.5, 24.5, 25, "left_wall");
+    // left wallbottom
+    addWall(1, 10, 25, -29.5, 4, 25, "left_wall");
+    // right wall1
+    addWall(1, 30, 35, 29.5, 14.5, -5, "left_wall");
+    // right wall2
+    addWall(1, 30, 15, 29.5, 14.5, 45, "left_wall");
+    // right walltop
+    addWall(1, 10, 25, 29.5, 24.5, 25, "left_wall");
+    // right wallbottom
+    addWall(1, 10, 25, 29.5, 4, 25, "left_wall");
+
+
 
     addLighting();
-    function addWall(w, h, d, x, y, z){
+    function addWall(w, h, d, x, y, z, types){
+        let wall_texture;
+        if (types == "ground") {
+            wall_texture = new THREE.TextureLoader().load( './assets/white-wall.png' );
+        } 
+        else if (types == "far_box") {
+            wall_texture = new THREE.TextureLoader().load( './assets/red-tile.png' );
+        }
+        else if (types == "far_wall") {
+            wall_texture = new THREE.TextureLoader().load( './assets/white-wall.png' );
+        }
+        else if (types == "roof") {
+            wall_texture = new THREE.TextureLoader().load( './assets/white-wall.png' );
+        }
+        else if (types == "left_wall") {
+            wall_texture = new THREE.TextureLoader().load( './assets/white-wall.png' );
+        }
+        else if (types == "right_wall") {
+            wall_texture = new THREE.TextureLoader().load( './assets/white-wall.png' );
+        }
+        
         const geometry = new THREE.BoxGeometry( w, h, d );
-        const material = new THREE.MeshPhongMaterial( {color: 0x808080} );
+
+        // immediately use the texture for material creation
+        const material = new THREE.MeshBasicMaterial( { map: wall_texture } );
+        // const material = new THREE.MeshPhongMaterial( {color: 0x4ae874} );
         const cube = new THREE.Mesh( geometry, material );
         cube.receiveShadow = true;
         cube.position.set(x, y, z);
         scene.add( cube );
     }
 
-    const objMaterial = {
-        clearcoat: 0.4,
-        cleacoatRoughness:0.1,
-        metalness: 0,
-        roughness:0.5,
-        color: 0x006d8f,
-        reflectivity: 0.5
-      };
+    // ball 
+    const BaseBallMap = new THREE.TextureLoader().load("./assets/basecolor-ball-map.jpg");
+    const NormalBallMap = new THREE.TextureLoader().load("./assets/normal-ball-map.jpg");
+    const HeightBallMap = new THREE.TextureLoader().load("./assets/height-ball-map.png");
+    const AmbientBallMap = new THREE.TextureLoader().load("./assets/ambient-ball-map.jpg");
+    const RoughnessBallMap = new THREE.TextureLoader().load("./assets/roughness-ball-map.jpg");
+
+    const BallMaterial = {
+        map: BaseBallMap,
+        normalMap: NormalBallMap,
+        displacementMap: HeightBallMap,
+        displacementScale: 5,
+        roughnessMap: RoughnessBallMap,
+        roughness: 0.02,
+        aoMap: AmbientBallMap,
+        aoMapIntensity: 0.9,
+        metalness: 0.2,
+        color: 0xd4af37,
+    };
+
     function drawBall(r, x, y, z){
         const geometry = new THREE.SphereGeometry( r, 32, 10 );
-        const material = new THREE.MeshPhysicalMaterial(objMaterial);
+        const material = new THREE.MeshPhysicalMaterial(BallMaterial);
         const sphere = new THREE.Mesh( geometry, material );
         sphere.position.set(x, y, z);
         sphere.castShadow = true;
-        sphere.receiveShadow = false; //default
+        sphere.receiveShadow = true; //default
         sphere.name = "balls";
         objects.push(sphere);
         scene.add( sphere );
     }
 
+    // box 
+    const BaseBoxMap = new THREE.TextureLoader().load("./assets/basecolor-box-map.jpg");
+    const NormalBoxMap = new THREE.TextureLoader().load("./assets/normal-box-map.jpg");
+    const HeightBoxMap = new THREE.TextureLoader().load("./assets/height-box-map.png");
+    const AmbientBoxMap = new THREE.TextureLoader().load("./assets/ambient-box-map.jpg");
+    const RoughnessBoxMap = new THREE.TextureLoader().load("./assets/roughness-box-map.jpg");
+    const MetallicBoxMap = new THREE.TextureLoader().load("./assets/metallic-box-map.jpg");
+
+    const BoxMaterial = {
+        map: BaseBoxMap,
+        normalMap: NormalBoxMap,
+        displacementMap: HeightBoxMap,
+        displacementScale: 0,
+        roughnessMap: RoughnessBoxMap,
+        roughness: 0.1,
+        aoMap: AmbientBoxMap,
+        aoMapIntensity: 0.3,
+        metalnessMap: MetallicBoxMap,
+        metalness: 0.1,
+        color: 0xd4af37,
+    };
+
     function drawSquare(w, x, y, z){
         const geometry = new THREE.BoxGeometry( w, w, w );
-        const material = new THREE.MeshPhysicalMaterial(objMaterial);
+        const material = new THREE.MeshPhysicalMaterial(BoxMaterial);
         const square = new THREE.Mesh( geometry, material );
         square.position.set(x, y, z);
         square.castShadow = true;
-        square.receiveShadow = false; //default
+        square.receiveShadow = true; //default
         square.name = "squares";
         objects.push(square);
         scene.add( square );
@@ -382,7 +468,7 @@ function init(){
         width = 1;
         let count = 0;
         let r = 2;
-        let w = 3;
+        let w = 4;
         let x = 10, y=27, z=-20;
         for(let j=0; j<3; j++){
             for(let i=0; i<3; i++){
