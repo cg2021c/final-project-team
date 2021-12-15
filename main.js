@@ -186,6 +186,18 @@ function init(){
         balls.push(sphere);
         scene.add( sphere );
     }
+
+    function drawSquare(w, x, y, z){
+        const geometry = new THREE.BoxGeometry( w, w, w );
+        const material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+        const square = new THREE.Mesh( geometry, material );
+        square.position.set(x, y, z);
+        square.castShadow = true;
+        square.receiveShadow = false; //default
+        square.name = "square";
+        balls.push(square);
+        scene.add( square );
+    }
     
     function addLighting(){
         const hemisphereLight = new THREE.HemisphereLight(0xFFFFFF, 0x808080, 1);
@@ -361,11 +373,22 @@ function init(){
         width = 1;
         let count = 0;
         let r = 2;
+        let w = 3;
         let x = 10, y=27, z=-20;
         for(let j=0; j<3; j++){
             for(let i=0; i<3; i++){
                 points.push([x, y, z]);
-                drawBall(r, x, y, z);
+                if(j%2==0){
+                    if(i%2==0)
+                        drawBall(r, x, y, z);
+                    else
+                        drawSquare(w, x, y, z);
+                } else {
+                    if(i%2==1)
+                        drawBall(r, x, y, z);
+                    else
+                        drawSquare(w, x, y, z);
+                }
                 x-=10;
             }
             y-=8;
