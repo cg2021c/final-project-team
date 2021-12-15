@@ -1,0 +1,56 @@
+#blocker {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,1);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+#mainmenu {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    left: 0;
+    right: 0;
+    top: 25%;
+    bottom: 0;
+    color: aliceblue;
+    user-select: none;
+}
+.hover:hover {
+    user-select: none;
+    color: yellow;
+}
+#scores {
+    position: absolute;
+    text-align: center;
+    color: rgb(255, 101, 101);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    font-size: x-large;
+}
+#scoresvalue {
+    position: absolute;
+    text-align: center;
+    color: rgb(255, 101, 101);
+    left: 0;
+    right: 0;
+    top: 40px;
+    bottom: 0;
+    font-size: x-large;
+}
+#gameover{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    top: 300px;
+    bottom: 0;
+    color: aliceblue;
+    user-select: none;
+}
