@@ -122,7 +122,7 @@ function init(){
     var canSelect = false;
 
     let newPoints;
-    let balls = [];
+    let objects = [];
     let visited = [];
     var start=null, end=null;
     var addZ=0;
@@ -175,27 +175,36 @@ function init(){
         cube.position.set(x, y, z);
         scene.add( cube );
     }
+
+    const objMaterial = {
+        clearcoat: 0.4,
+        cleacoatRoughness:0.1,
+        metalness: 0,
+        roughness:0.5,
+        color: 0x006d8f,
+        reflectivity: 0.5
+      };
     function drawBall(r, x, y, z){
         const geometry = new THREE.SphereGeometry( r, 32, 10 );
-        const material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+        const material = new THREE.MeshPhysicalMaterial(objMaterial);
         const sphere = new THREE.Mesh( geometry, material );
         sphere.position.set(x, y, z);
         sphere.castShadow = true;
         sphere.receiveShadow = false; //default
         sphere.name = "balls";
-        balls.push(sphere);
+        objects.push(sphere);
         scene.add( sphere );
     }
 
     function drawSquare(w, x, y, z){
         const geometry = new THREE.BoxGeometry( w, w, w );
-        const material = new THREE.MeshPhongMaterial( { color: 0x000000 } );
+        const material = new THREE.MeshPhysicalMaterial(objMaterial);
         const square = new THREE.Mesh( geometry, material );
         square.position.set(x, y, z);
         square.castShadow = true;
         square.receiveShadow = false; //default
-        square.name = "square";
-        balls.push(square);
+        square.name = "squares";
+        objects.push(square);
         scene.add( square );
     }
     
@@ -270,7 +279,7 @@ function init(){
     function hover(){
         raycaster.setFromCamera(new THREE.Vector2(), camera);
         raycaster.ray.origin.copy(controls.getObject().position);
-        const intersects = raycaster.intersectObjects(balls, false);
+        const intersects = raycaster.intersectObjects(objects, false);
         if(!canSelect) return;
         if(intersects.length > 0){
             if(checkBall(intersects[0].object))return;
@@ -293,7 +302,7 @@ function init(){
         }
     }
     function selectObject(){
-        const intersects = raycaster.intersectObjects(balls, false);
+        const intersects = raycaster.intersectObjects(objects, false);
         if(intersects.length == 0 || !canSelect){
             return;
         }
@@ -338,7 +347,7 @@ function init(){
                 disposeLine(mesh2);
                 lineIndex = 0;
                 index = 0;
-                emptyArray(balls);
+                emptyArray(objects);
                 emptyArray(visited);
                 emptyArray(points);
                 emptyArray(mesh);
