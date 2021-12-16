@@ -45,7 +45,9 @@
         <h2 style="text-align: center;" id="tryagain" class="hover">Try Again</h2>
     </div>
 
-    <audio autoplay loop src="./assets/Thinking-Background.wav"></audio>
+    <audio preload="true" loop="true" autoplay="true">
+        <source src="./assets/Thinking-Background.wav">
+    </audio>
 
     <script src="./three/three.min.js"></script>
     <script src="PointerLockControls.js"></script>
