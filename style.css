@@ -37,8 +37,8 @@ canvas{
 }
 #mainmenu {
     position: absolute;
-    left: 75px;
-    top: 25%;
+    left: 30px;
+    top: 20%;
     bottom: 0;
     /* background-color: white; */
     color: rgb(0, 0, 0);
@@ -93,11 +93,4 @@ canvas{
     bottom: 0;
     color: rgb(0, 0, 0);
     user-select: none;
-}
-.skewed{
-    transform: skew(0deg, 10deg);
-}
-
-.level-skewed{
-    transform: skew(0deg, 8deg);
 }
