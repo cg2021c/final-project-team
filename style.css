@@ -37,8 +37,8 @@ canvas{
 }
 #mainmenu {
     position: absolute;
-    left: 30px;
-    top: 20%;
+    left: 2vw;
+    top: 20vh;
     bottom: 0;
     /* background-color: white; */
     color: rgb(0, 0, 0);
