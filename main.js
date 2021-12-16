@@ -68,6 +68,7 @@ function init(){
     const finaltime = document.getElementById( 'finaltime' );
     const tryagain = document.getElementById( 'tryagain' );
     const logo = document.getElementById( 'logo' );
+    const audio = document.getElementById( 'audioplayer' );
 
     // Add mouse controls
     const controls = new THREE.PointerLockControls( camera, renderer.domElement );
@@ -91,6 +92,7 @@ function init(){
         logo.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
+        audio.play();
         difficulty = 0;
         timerf();
         difficultyEasy();
@@ -98,8 +100,10 @@ function init(){
     medium.addEventListener('click', function (){
         inGame = true;
         blocker.style.display = 'none';
+        logo.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
+        audio.play();
         difficulty = 1;
         timerf()
         difficultyMedium();
@@ -107,8 +111,10 @@ function init(){
     hard.addEventListener('click', function (){
         inGame = true;
         blocker.style.display = 'none';
+        logo.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
+        audio.play();
         difficulty = 2;
         timerf()
         difficultyHard();
