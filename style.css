@@ -3,6 +3,11 @@ body{
     height: 100vh;
     overflow: hidden;
 }
+canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 #blocker {
     position: absolute;
     width: 100vw;
