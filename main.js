@@ -63,6 +63,7 @@ function init(){
     const scores = document.getElementById( 'scores' );
     const scoresvalue = document.getElementById( 'scoresvalue' );
     const finalscore = document.getElementById( 'finalscore' );
+    const tryagain = document.getElementById( 'tryagain' );
 
     // Add mouse controls
     const controls = new THREE.PointerLockControls( camera, renderer.domElement );
@@ -100,6 +101,10 @@ function init(){
         scores.style.display = '';
         difficulty = 2;
         difficultyHard();
+    });
+    tryagain.addEventListener('click', function (){
+        inGame = false;
+        window.location.reload(1);
     });
     document.body.addEventListener( 'click', function () {
         if(!inGame) return;
@@ -417,10 +422,12 @@ function init(){
         return true;
     }
     function gameOver(){
+        inGame = false;
         tick = null;
         finalscore.innerText+=score;
         blocker.style.display = 'block';
         gameover.style.display = '';
+        controls.unlock();
     }
     function gameContinue(){
         var newScore = 1;
