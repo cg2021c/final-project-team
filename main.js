@@ -62,7 +62,9 @@ function init(){
     const hard = document.getElementById( 'hard' );
     const scores = document.getElementById( 'scores' );
     const scoresvalue = document.getElementById( 'scoresvalue' );
+    const timer = document.getElementById( 'timer' );
     const finalscore = document.getElementById( 'finalscore' );
+    const finaltime = document.getElementById( 'finaltime' );
     const tryagain = document.getElementById( 'tryagain' );
 
     // Add mouse controls
@@ -74,9 +76,11 @@ function init(){
     let mesh = [];
     let mesh2 = [];
     var score = 0;
+    var time = 0;
     scores.style.display = 'none';
     blocker.style.display = 'block';
     scoresvalue.innerText = score;
+    timer.innerText = format(time);
     gameover.style.display = 'none';
     easy.addEventListener('click', function (){
         inGame = true;
@@ -84,6 +88,7 @@ function init(){
         mainmenu.style.display = 'none';
         scores.style.display = '';
         difficulty = 0;
+        timerf();
         difficultyEasy();
     });
     medium.addEventListener('click', function (){
@@ -92,6 +97,7 @@ function init(){
         mainmenu.style.display = 'none';
         scores.style.display = '';
         difficulty = 1;
+        timerf()
         difficultyMedium();
     });
     hard.addEventListener('click', function (){
@@ -100,6 +106,7 @@ function init(){
         mainmenu.style.display = 'none';
         scores.style.display = '';
         difficulty = 2;
+        timerf()
         difficultyHard();
     });
     tryagain.addEventListener('click', function (){
@@ -422,6 +429,7 @@ function init(){
         return true;
     }
     function gameOver(){
+        finaltime.innerText=format(time)
         inGame = false;
         tick = null;
         finalscore.innerText+=score;
@@ -458,6 +466,34 @@ function init(){
             newScore++;
         }, 20)
         
+    }
+
+    function format(time) {   
+        // Hours, minutes and seconds
+        var hrs = ~~(time / 3600);
+        var mins = ~~((time % 3600) / 60);
+        var secs = ~~time % 60;
+    
+        // Output like "1:01" or "4:03:59" or "123:03:59"
+        var ret = "";
+        if (hrs > 0) {
+            ret += "" + hrs + ":" + (mins < 10 ? "0" : "");
+        }
+        ret += "" + mins + ":" + (secs < 10 ? "0" : "");
+        ret += "" + secs;
+        return ret;
+    }
+
+    function timerf(){
+        var timetemp = setInterval(()=>{
+            if(inGame==false)
+            {
+                time=0;
+                clearInterval(timetemp);
+            }
+            time++;
+            timer.innerText=format(time);
+        }, 1000)
     }
     function emptyArray(A){
         while(A.length>0){
