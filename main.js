@@ -67,6 +67,7 @@ function init(){
     const finalscore = document.getElementById( 'finalscore' );
     const finaltime = document.getElementById( 'finaltime' );
     const tryagain = document.getElementById( 'tryagain' );
+    const logo = document.getElementById( 'logo' );
 
     // Add mouse controls
     const controls = new THREE.PointerLockControls( camera, renderer.domElement );
@@ -87,6 +88,7 @@ function init(){
     easy.addEventListener('click', function (){
         inGame = true;
         blocker.style.display = 'none';
+        logo.style.display = 'none';
         mainmenu.style.display = 'none';
         scores.style.display = '';
         difficulty = 0;
