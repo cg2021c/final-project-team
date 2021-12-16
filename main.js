@@ -54,6 +54,7 @@ function init(){
     window.addEventListener('click', selectObject);
 
     const blocker = document.getElementById( 'blocker' );
+    const gameoverBlocker = document.getElementById( 'gameoverBlocker' );
     const instructions = document.getElementById( 'instructions' );
     const gameover = document.getElementById( 'gameover' );
     const mainmenu = document.getElementById( 'mainmenu' );
@@ -82,6 +83,7 @@ function init(){
     scoresvalue.innerText = score;
     timer.innerText = format(time);
     gameover.style.display = 'none';
+    gameoverBlocker.style.display = 'none';
     easy.addEventListener('click', function (){
         inGame = true;
         blocker.style.display = 'none';
@@ -429,12 +431,14 @@ function init(){
         return true;
     }
     function gameOver(){
+        blocker.style.display = 'none';
         finaltime.innerText=format(time)
         inGame = false;
         tick = null;
         finalscore.innerText+=score;
-        blocker.style.display = 'block';
+        gameoverBlocker.style.display = 'block';
         gameover.style.display = '';
+        // blocker.style.backgroundImage = "url(./assets/GameOver-Background.png)";
         controls.unlock();
     }
     function gameContinue(){

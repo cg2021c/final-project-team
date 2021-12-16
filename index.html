@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThreeJS PatternLab</title>
     <link href="style.css" rel="stylesheet">
+
+    <!-- google font css  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <canvas class="webgl"></canvas>
@@ -16,12 +21,14 @@
     </div>
     <div id="blocker">
     </div>
+    <div id="gameoverBlocker">
+    </div>
     <div style="text-align: center;" id="mainmenu">
-        <h1>Main Menu</h1>
-        <h2>Choose Difficulties</h2>
-        <h2 id="easy" class="hover">Easy</h2>
-        <h2 id="medium" class="hover">Medium</h2>
-        <h2 id="hard" class="hover">Hard</h2>
+        <h1 class=" skewed" style="font-size: 50px;">Main Menu</h1>
+        <h2 class=" skewed" style="font-size: 40px;">Choose Difficulties</h2>
+        <h2 id="easy" class="hover level-skewed" style="font-size: 30px;">Easy</h2>
+        <h2 id="medium" class="hover level-skewed" style="font-size: 30px;">Medium</h2>
+        <h2 id="hard" class="hover level-skewed" style="font-size: 30px;">Hard</h2>
     </div>
     <div id="gameover">
         <h1 style="text-align: center;">Game Over</h1>
